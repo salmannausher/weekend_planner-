@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  weekend: one
+  date: 2025-03-13
+  temperature: 1.5
+  conditions: MyString
+
+two:
+  weekend: two
+  date: 2025-03-13
+  temperature: 1.5
+  conditions: MyString

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  weekend: one
+  commenter_name: MyString
+  commenter_email: MyString
+  content: MyText
+
+two:
+  weekend: two
+  commenter_name: MyString
+  commenter_email: MyString
+  content: MyText

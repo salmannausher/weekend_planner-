@@ -1,0 +1,55 @@
+<div class="max-w-6xl mx-auto">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Plan Your Perfect Weekend</h1>
+    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+      Organize activities, collaborate with friends, and make the most of your free time with our weekend planning tool.
+    </p>
+    
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <% if user_signed_in? %>
+        <%= link_to "My Weekends", weekends_path, class: "bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium text-lg inline-block shadow-md border-2 border-black" %>
+      <% else %>
+        <%= link_to "Get Started", new_user_registration_path, class: "bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium text-lg inline-block shadow-md border-2 border-black" %>
+        <%= link_to "Sign In", new_user_session_path, class: "bg-white hover:bg-gray-100 text-black px-8 py-3 rounded-md font-medium text-lg inline-block shadow-md border-2 border-black" %>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+    <div class="bg-white p-8 rounded-lg shadow-md text-center">
+      <div class="mb-6 flex justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h3 class="text-2xl font-semibold mb-3 text-gray-900">Calendar Integration</h3>
+      <p class="text-gray-600 text-lg">
+        Connect with Google Calendar, Apple Calendar, or Outlook to find free weekends and avoid scheduling conflicts.
+      </p>
+    </div>
+    
+    <div class="bg-white p-8 rounded-lg shadow-md text-center">
+      <div class="mb-6 flex justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </div>
+      <h3 class="text-2xl font-semibold mb-3 text-gray-900">Easy Collaboration</h3>
+      <p class="text-gray-600 text-lg">
+        Share plans with friends, vote on activities, and make decisions together for the perfect weekend.
+      </p>
+    </div>
+    
+    <div class="bg-white p-8 rounded-lg shadow-md text-center">
+      <div class="mb-6 flex justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+        </svg>
+      </div>
+      <h3 class="text-2xl font-semibold mb-3 text-gray-900">Weather Forecasts</h3>
+      <p class="text-gray-600 text-lg">
+        Check the weather for your planned weekend to prepare accordingly or adjust outdoor activities.
+      </p>
+    </div>
+  </div>
+</div>

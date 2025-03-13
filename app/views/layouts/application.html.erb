@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Weekend Planner" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes Tailwind CSS %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-black text-white py-4 shadow-lg">
+      <div class="container mx-auto px-5 flex justify-between items-center">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold"><%= link_to "Weekend Planner", root_path, class: "hover:text-gray-300" %></h1>
+        </div>
+        <nav>
+          <ul class="flex space-x-6 items-center">
+            <% if user_signed_in? %>
+              <li><%= link_to "My Weekends", weekends_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
+              <li><%= link_to "Calendar", calendar_events_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
+              <li><%= link_to "Account", edit_user_registration_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
+              <li><%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "bg-white hover:bg-gray-200 text-black px-4 py-2 rounded-md shadow-md font-medium border-2 border-white" %></li>
+            <% else %>
+              <li><%= link_to "Sign In", new_user_session_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
+              <li><%= link_to "Sign Up", new_user_registration_path, class: "bg-white hover:bg-gray-200 text-black px-4 py-2 rounded-md shadow-md font-medium border-2 border-white" %></li>
+            <% end %>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <% if notice %>
+      <div class="bg-gray-100 border-2 border-gray-300 text-gray-700 px-4 py-3 rounded relative container mx-auto mt-4 shadow-sm" role="alert">
+        <span class="block sm:inline"><%= notice %></span>
+      </div>
+    <% end %>
+    
+    <% if alert %>
+      <div class="bg-gray-100 border-2 border-gray-300 text-gray-700 px-4 py-3 rounded relative container mx-auto mt-4 shadow-sm" role="alert">
+        <span class="block sm:inline"><%= alert %></span>
+      </div>
+    <% end %>
+
+    <main class="container mx-auto mt-8 px-5 flex-grow">
+      <%= yield %>
+    </main>
+    
+    <footer class="bg-gray-100 mt-12 py-6">
+      <div class="container mx-auto px-5 text-center text-gray-600">
+        <p>&copy; <%= Date.today.year %> Weekend Planner. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

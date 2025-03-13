@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  location: MyString
+  start_time: 2025-03-13 13:54:36
+  end_time: 2025-03-13 13:54:36
+  weekend: one
+  suggested_by: MyString
+  cost: 9.99
+  weather_dependent: false
+
+two:
+  name: MyString
+  description: MyText
+  location: MyString
+  start_time: 2025-03-13 13:54:36
+  end_time: 2025-03-13 13:54:36
+  weekend: two
+  suggested_by: MyString
+  cost: 9.99
+  weather_dependent: false
