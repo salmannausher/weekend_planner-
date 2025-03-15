@@ -1,0 +1,185 @@
+<%= turbo_frame_tag "modal" do %>
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold text-gray-900"><%= plan.title %></h1>
+          <%= link_to "×", plans_path, class: "text-3xl font-semibold text-gray-500 hover:text-black" %>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-gray-50 p-4 rounded-md">
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Dates</h3>
+            <p class="text-gray-900"><%= plan.start_date.strftime("%b %d") %> - <%= plan.end_date.strftime("%b %d, %Y") %></p>
+          </div>
+          
+          <div class="bg-gray-50 p-4 rounded-md">
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Location</h3>
+            <p class="text-gray-900"><%= plan.location %></p>
+          </div>
+          
+          <div class="bg-gray-50 p-4 rounded-md">
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Status</h3>
+            <p class="text-gray-900">
+              <% case plan.status %>
+              <% when 'draft' %>
+                <span class="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full">Draft</span>
+              <% when 'shared' %>
+                <span class="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full">Shared</span>
+              <% when 'finalized' %>
+                <span class="inline-block bg-black text-white text-xs px-2 py-1 rounded-full">Finalized</span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+        
+        <% if plan.description.present? %>
+          <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">Description</h2>
+            <p class="text-gray-700"><%= plan.description %></p>
+          </div>
+        <% end %>
+        
+        <div class="mb-8">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Activities</h2>
+            <button id="add-activity-btn" class="bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm font-medium">
+              Add Custom Activity
+            </button>
+          </div>
+          
+          <div id="activity-form" class="hidden bg-gray-50 p-4 rounded-md mb-4">
+            <%= form_with(model: [plan, Activity.new], local: true, class: "space-y-4") do |f| %>
+              <div>
+                <%= f.label :title, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :title, class: "w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" %>
+              </div>
+              
+              <div>
+                <%= f.label :description, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_area :description, rows: 3, class: "w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" %>
+              </div>
+              
+              <div class="flex justify-end">
+                <button type="button" id="cancel-activity" class="mr-2 bg-white hover:bg-gray-100 text-gray-800 px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium">Cancel</button>
+                <%= f.submit "Add Activity", class: "bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm font-medium" %>
+              </div>
+            <% end %>
+          </div>
+          
+          <div id="suggested-activities" class="mb-4">
+            <h3 class="text-md font-medium text-gray-700 mb-2">Suggested Activities</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-gray-50 p-3 rounded-md border border-gray-200">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-medium text-gray-900">Local Hiking Trail</h4>
+                    <p class="text-sm text-gray-600">Explore nature with a scenic hike</p>
+                  </div>
+                  <button class="add-suggested text-xs bg-black text-white px-2 py-1 rounded">Add</button>
+                </div>
+              </div>
+              <div class="bg-gray-50 p-3 rounded-md border border-gray-200">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-medium text-gray-900">Farmers Market</h4>
+                    <p class="text-sm text-gray-600">Visit the local farmers market</p>
+                  </div>
+                  <button class="add-suggested text-xs bg-black text-white px-2 py-1 rounded">Add</button>
+                </div>
+              </div>
+              <div class="bg-gray-50 p-3 rounded-md border border-gray-200">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-medium text-gray-900">Museum Visit</h4>
+                    <p class="text-sm text-gray-600">Check out the local art museum</p>
+                  </div>
+                  <button class="add-suggested text-xs bg-black text-white px-2 py-1 rounded">Add</button>
+                </div>
+              </div>
+              <div class="bg-gray-50 p-3 rounded-md border border-gray-200">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-medium text-gray-900">Food Tour</h4>
+                    <p class="text-sm text-gray-600">Try local cuisine at different restaurants</p>
+                  </div>
+                  <button class="add-suggested text-xs bg-black text-white px-2 py-1 rounded">Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <% if plan.activities.any? %>
+            <div class="space-y-3">
+              <% plan.activities.each do |activity| %>
+                <div class="bg-white border border-gray-200 rounded-md p-4">
+                  <div class="flex justify-between">
+                    <h3 class="font-medium text-gray-900"><%= activity.title %></h3>
+                    <div class="flex space-x-2">
+                      <%= button_to plan_activity_path(plan, activity), method: :delete, class: "text-gray-400 hover:text-red-500", form: { data: { turbo_confirm: "Are you sure?" } } do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      <% end %>
+                    </div>
+                  </div>
+                  <% if activity.description.present? %>
+                    <p class="text-gray-600 text-sm mt-1"><%= activity.description %></p>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="bg-gray-50 p-4 rounded-md text-center">
+              <p class="text-gray-500">No activities added yet. Add some activities to your plan!</p>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="flex justify-between">
+          <%= link_to "Back", plans_path, class: "text-gray-600 hover:text-black" %>
+          <div class="space-x-2">
+            <% unless plan.finalized? %>
+              <%= link_to "Edit", edit_plan_path(plan), class: "bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium" %>
+              <%= button_to "Finalize Plan", finalize_plan_path(plan), method: :post, class: "bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const addActivityBtn = document.getElementById('add-activity-btn');
+    const activityForm = document.getElementById('activity-form');
+    const cancelActivity = document.getElementById('cancel-activity');
+    
+    addActivityBtn.addEventListener('click', function() {
+      activityForm.classList.remove('hidden');
+      addActivityBtn.classList.add('hidden');
+    });
+    
+    cancelActivity.addEventListener('click', function() {
+      activityForm.classList.add('hidden');
+      addActivityBtn.classList.remove('hidden');
+    });
+    
+    // Handle suggested activities
+    document.querySelectorAll('.add-suggested').forEach(button => {
+      button.addEventListener('click', function() {
+        const activityInfo = this.closest('div').querySelector('h4').textContent;
+        const activityDesc = this.closest('div').querySelector('p').textContent;
+        
+        // Set the form values
+        document.querySelector('#activity_title').value = activityInfo;
+        document.querySelector('#activity_description').value = activityDesc;
+        
+        // Show the form
+        activityForm.classList.remove('hidden');
+        addActivityBtn.classList.add('hidden');
+      });
+    });
+  });
+</script> 

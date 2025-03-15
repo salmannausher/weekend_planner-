@@ -1,0 +1,17 @@
+<%= turbo_frame_tag "modal" do %>
+  <div class="p-6 md:p-8">
+    <div class="flex justify-between items-start mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Edit Activity</h1>
+      
+      <%= link_to plan_path(@plan), class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      <% end %>
+    </div>
+    
+    <div class="space-y-6">
+      <%= render partial: "plans/activity_form", locals: { plan: @plan, activity: @activity } %>
+    </div>
+  </div>
+<% end %> 

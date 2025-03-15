@@ -20,6 +20,46 @@
     <%# Includes Tailwind CSS %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    
+    <style>
+      /* Modal styles */
+      .modal-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 1rem;
+      }
+      
+      .modal-content {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        width: 100%;
+        max-width: 42rem;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+      }
+      
+      .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10;
+      }
+      
+      /* Hide modal by default */
+      turbo-frame#modal:not([src]) {
+        display: none;
+      }
+    </style>
   </head>
 
   <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -31,7 +71,7 @@
         <nav>
           <ul class="flex space-x-6 items-center">
             <% if user_signed_in? %>
-              <li><%= link_to "My Weekends", weekends_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
+              <li><%= link_to "My Plans", plans_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
               <li><%= link_to "Calendar", calendar_events_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
               <li><%= link_to "Account", edit_user_registration_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
               <li><%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "bg-white hover:bg-gray-200 text-black px-4 py-2 rounded-md shadow-md font-medium border-2 border-white" %></li>
@@ -65,5 +105,37 @@
         <p>&copy; <%= Date.today.year %> Weekend Planner. All rights reserved.</p>
       </div>
     </footer>
+    
+    <div id="modal-container" class="modal-container" style="display: none;">
+      <div class="modal-content">
+        <button id="modal-close" class="modal-close p-2 rounded-full hover:bg-gray-200">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <%= turbo_frame_tag "modal" %>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('turbo:frame-load', function(event) {
+        if (event.target.id === 'modal') {
+          document.getElementById('modal-container').style.display = 'flex';
+        }
+      });
+      
+      document.getElementById('modal-close').addEventListener('click', function() {
+        document.getElementById('modal-container').style.display = 'none';
+        document.getElementById('modal').innerHTML = '';
+      });
+      
+      // Close modal when clicking outside of it
+      document.getElementById('modal-container').addEventListener('click', function(event) {
+        if (event.target === this) {
+          document.getElementById('modal-container').style.display = 'none';
+          document.getElementById('modal').innerHTML = '';
+        }
+      });
+    </script>
   </body>
 </html>

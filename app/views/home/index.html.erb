@@ -7,13 +7,28 @@
     
     <div class="mt-8 flex flex-wrap justify-center gap-4">
       <% if user_signed_in? %>
-        <%= link_to "My Weekends", weekends_path, class: "bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium text-lg inline-block shadow-md border-2 border-black" %>
+        <%= link_to "My Plans", plans_path, class: "bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium text-lg inline-block shadow-md border-2 border-black" %>
       <% else %>
         <%= link_to "Get Started", new_user_registration_path, class: "bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium text-lg inline-block shadow-md border-2 border-black" %>
         <%= link_to "Sign In", new_user_session_path, class: "bg-white hover:bg-gray-100 text-black px-8 py-3 rounded-md font-medium text-lg inline-block shadow-md border-2 border-black" %>
       <% end %>
     </div>
   </div>
+  
+  <% if @temperature %>
+  <div class="bg-white shadow-xl rounded-lg p-8 mb-12 max-w-md mx-auto border-2 border-gray-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-2xl font-bold text-gray-900"><%= @temperature[:location] %></h3>
+        <p class="text-lg text-gray-600"><%= @temperature[:condition] %></p>
+      </div>
+      <div class="text-right">
+        <div class="text-5xl font-bold text-gray-900"><%= @temperature[:current] %>°<%= @temperature[:unit] %></div>
+        <div class="text-base text-gray-600">H: <%= @temperature[:high] %>° L: <%= @temperature[:low] %>°</div>
+      </div>
+    </div>
+  </div>
+  <% end %>
   
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
     <div class="bg-white p-8 rounded-lg shadow-md text-center">

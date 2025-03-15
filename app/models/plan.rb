@@ -1,4 +1,4 @@
-class Weekend < ApplicationRecord
+class Plan < ApplicationRecord
   belongs_to :user
   has_many :activities, dependent: :destroy
   has_many :comments, dependent: :destroy

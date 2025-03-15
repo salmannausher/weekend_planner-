@@ -1,71 +1,89 @@
 class ActivitiesController < ApplicationController
   before_action :authenticate_user!, except: [:vote]
-  before_action :set_weekend
-  before_action :set_activity, only: [:update, :destroy, :vote]
-  before_action :ensure_owner, only: [:update, :destroy]
+  before_action :set_plan
+  before_action :set_activity, only: [:edit, :update, :destroy, :vote]
+  before_action :ensure_owner, only: [:edit, :update, :destroy]
   
   def create
-    @activity = @weekend.activities.build(activity_params)
-    @activity.suggested_by = current_user.email if user_signed_in?
+    @activity = @plan.activities.build(activity_params)
     
-    if @activity.save
-      redirect_to @weekend, notice: "Activity was successfully added."
-    else
-      redirect_to @weekend, alert: "Failed to add activity: #{@activity.errors.full_messages.join(', ')}"
+    respond_to do |format|
+      if @activity.save
+        format.html { redirect_to @plan, notice: "Activity was successfully added." }
+        format.turbo_stream { render :create }
+      else
+        format.html { redirect_to @plan, alert: "Failed to add activity: #{@activity.errors.full_messages.join(', ')}" }
+        format.turbo_stream { 
+          render turbo_stream: turbo_stream.replace(
+            "activity-form", 
+            partial: "plans/activity_form", 
+            locals: { plan: @plan, activity: @activity }
+          )
+        }
+      end
+    end
+  end
+  
+  def edit
+    respond_to do |format|
+      format.html
+      format.turbo_stream
     end
   end
 
   def update
-    if @activity.update(activity_params)
-      redirect_to @weekend, notice: "Activity was successfully updated."
-    else
-      redirect_to @weekend, alert: "Failed to update activity: #{@activity.errors.full_messages.join(', ')}"
+    respond_to do |format|
+      if @activity.update(activity_params)
+        format.html { redirect_to @plan, notice: "Activity was successfully updated." }
+        format.turbo_stream
+      else
+        format.html { redirect_to @plan, alert: "Failed to update activity: #{@activity.errors.full_messages.join(', ')}" }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("activity-form", partial: "plans/activity_form", locals: { plan: @plan, activity: @activity }) }
+      end
     end
   end
 
   def destroy
     @activity.destroy
-    redirect_to @weekend, notice: "Activity was successfully removed."
+    
+    respond_to do |format|
+      format.html { redirect_to @plan, notice: "Activity was successfully removed." }
+      format.turbo_stream
+    end
   end
 
   def vote
-    # Allow voting without login for shared weekends
-    unless @weekend.shared? || @weekend.finalized? || user_signed_in?
-      redirect_to @weekend, alert: "This weekend plan is not shared yet."
+    # Allow voting without login for shared plans
+    unless @plan.shared? || @plan.finalized? || user_signed_in?
+      redirect_to @plan, alert: "This plan is not shared yet."
       return
     end
     
-    @vote = @activity.votes.find_or_initialize_by(voter_email: vote_params[:voter_email])
-    @vote.assign_attributes(vote_params)
-    
-    if @vote.save
-      redirect_to shared_weekend_path(@weekend.share_token), notice: "Your vote has been recorded."
+    if user_signed_in?
+      @activity.toggle_vote(current_user)
+      redirect_to @plan, notice: "Your vote has been recorded."
     else
-      redirect_to shared_weekend_path(@weekend.share_token), alert: "Failed to record vote: #{@vote.errors.full_messages.join(', ')}"
+      redirect_to shared_plan_path(@plan.share_token), alert: "You need to be signed in to vote."
     end
   end
   
   private
   
-  def set_weekend
-    @weekend = Weekend.find(params[:weekend_id])
+  def set_plan
+    @plan = Plan.find(params[:plan_id])
   end
   
   def set_activity
-    @activity = @weekend.activities.find(params[:id])
+    @activity = @plan.activities.find(params[:id])
   end
   
   def ensure_owner
-    unless @weekend.user == current_user
-      redirect_to @weekend, alert: "You don't have permission to perform this action."
+    unless @plan.user == current_user
+      redirect_to @plan, alert: "You don't have permission to perform this action."
     end
   end
   
   def activity_params
-    params.require(:activity).permit(:name, :description, :location, :start_time, :end_time, :cost, :weather_dependent)
-  end
-  
-  def vote_params
-    params.require(:vote).permit(:voter_name, :voter_email, :vote_type)
+    params.require(:activity).permit(:name, :description, :date)
   end
 end

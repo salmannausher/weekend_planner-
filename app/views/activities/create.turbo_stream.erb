@@ -1,0 +1,39 @@
+<% if @plan.activities.count == 1 %>
+  <%= turbo_stream.update "activities-list" do %>
+    <%= render partial: "plans/activity", locals: { activity: @activity, plan: @plan } %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.append "activities-list" do %>
+    <%= render partial: "plans/activity", locals: { activity: @activity, plan: @plan } %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.remove ".no-activities-message" if @plan.activities.count == 1 %>
+
+<%= turbo_stream.update "activity-form-container" do %>
+  <button id="add-activity-btn" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium text-sm">
+    Add Custom Activity
+  </button>
+  <div id="activity-form" class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 mt-4" style="display: none;">
+    <%= render partial: "plans/activity_form", locals: { plan: @plan, activity: Activity.new } %>
+  </div>
+<% end %>
+
+<script>
+  // Reinitialize the activity form toggle
+  const addActivityBtn = document.getElementById('add-activity-btn');
+  const cancelActivityBtn = document.getElementById('cancel-activity-btn');
+  const activityForm = document.getElementById('activity-form');
+  
+  if (addActivityBtn && cancelActivityBtn && activityForm) {
+    addActivityBtn.addEventListener('click', function() {
+      activityForm.style.display = 'block';
+      addActivityBtn.style.display = 'none';
+    });
+    
+    cancelActivityBtn.addEventListener('click', function() {
+      activityForm.style.display = 'none';
+      addActivityBtn.style.display = 'inline-flex';
+    });
+  }
+</script> 

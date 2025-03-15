@@ -11,14 +11,14 @@ Rails.application.routes.draw do
   get "calendar/events", to: "google_calendar#events", as: "calendar_events"
   
   # Weekend plans
-  resources :weekends do
+  resources :plans do
     member do
       get :share
       post :finalize
     end
     
     # Nested resources
-    resources :activities, only: [:create, :update, :destroy] do
+    resources :activities, only: [:create, :edit, :update, :destroy] do
       member do
         post :vote
       end
@@ -31,7 +31,7 @@ Rails.application.routes.draw do
   end
   
   # Public shared weekend view (no login required)
-  get "shared/:token", to: "weekends#shared", as: "shared_weekend"
+  get "shared/:token", to: "plans#shared", as: "shared_plan"
   
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

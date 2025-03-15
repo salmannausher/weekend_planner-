@@ -1,0 +1,10 @@
+<%= turbo_stream.remove @activity %>
+
+<% if @plan.activities.empty? %>
+  <%= turbo_stream.update "activities-list" do %>
+    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
+      <p class="text-gray-600 mb-2">No activities added yet.</p>
+      <p class="text-gray-500 text-sm">Add custom activities or choose from our suggestions below.</p>
+    </div>
+  <% end %>
+<% end %> 

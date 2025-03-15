@@ -1,0 +1,3 @@
+<%= turbo_stream.replace @activity do %>
+  <%= render partial: "plans/activity", locals: { activity: @activity, plan: @plan } %>
+<% end %> 

@@ -1,0 +1,196 @@
+<%= turbo_frame_tag "modal" do %>
+  <div class="p-6 md:p-8">
+    <div class="flex justify-between items-start mb-6">
+      <h1 class="text-3xl font-bold text-gray-900"><%= @plan.title %></h1>
+      
+      <div class="flex space-x-2">
+        <%= link_to edit_plan_path(@plan), class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        <% end %>
+        
+        <%= link_to plans_path, class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Dates</h2>
+        <p class="text-gray-600">
+          <%= @plan.start_date.strftime("%B %d") %> - <%= @plan.end_date.strftime("%B %d, %Y") %>
+          <span class="text-gray-500 text-sm ml-2">
+            (<%= (@plan.end_date - @plan.start_date).to_i + 1 %> days)
+          </span>
+        </p>
+      </div>
+      
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Location</h2>
+        <p class="text-gray-600"><%= @plan.location %></p>
+      </div>
+    </div>
+    
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-xl font-semibold text-gray-900">Status</h2>
+        <span class="text-sm">
+          <% case @plan.status %>
+          <% when 'draft' %>
+            <span class="inline-block bg-gray-200 text-gray-800 px-3 py-1 rounded-full">Draft</span>
+          <% when 'shared' %>
+            <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full">Shared</span>
+          <% when 'finalized' %>
+            <span class="inline-block bg-black text-white px-3 py-1 rounded-full">Finalized</span>
+          <% end %>
+        </span>
+      </div>
+      
+      <% if @plan.description.present? %>
+        <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+          <p class="text-gray-700"><%= @plan.description %></p>
+        </div>
+      <% end %>
+      
+      <% if @plan.status == 'draft' %>
+        <div class="flex space-x-3">
+          <%= button_to "Share Plan", share_plan_path(@plan), method: :patch, class: "bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium" %>
+          <%= button_to "Finalize Plan", finalize_plan_path(@plan), method: :patch, class: "bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-md shadow-md border-2 border-black font-medium" %>
+        </div>
+      <% elsif @plan.status == 'shared' %>
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+          <h3 class="text-lg font-semibold text-gray-700 mb-2">Share Link</h3>
+          <div class="flex items-center">
+            <input type="text" value="<%= shared_plan_url(@plan.share_token) %>" class="flex-grow border-2 border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm" readonly id="share-link">
+            <button onclick="copyShareLink()" class="ml-2 bg-black hover:bg-gray-800 text-white px-3 py-2 rounded-md shadow-md border-2 border-black font-medium text-sm">
+              Copy
+            </button>
+          </div>
+        </div>
+        
+        <%= button_to "Finalize Plan", finalize_plan_path(@plan), method: :patch, class: "bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium" %>
+      <% end %>
+    </div>
+    
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Activities</h2>
+        <div id="activity-form-container">
+          <button id="add-activity-btn" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium text-sm">
+            Add Custom Activity
+          </button>
+          <div id="activity-form" class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 mt-4" style="display: none;">
+            <%= render partial: "activity_form", locals: { plan: @plan, activity: @activity } %>
+          </div>
+        </div>
+      </div>
+      
+      <% if @plan.activities.any? %>
+        <div id="activities-list" class="space-y-4">
+          <% @plan.activities.each do |activity| %>
+            <%= render partial: "activity", locals: { activity: activity, plan: @plan } %>
+          <% end %>
+        </div>
+      <% else %>
+        <div id="activities-list" class="space-y-4">
+          <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center no-activities-message">
+            <p class="text-gray-600 mb-2">No activities added yet.</p>
+            <p class="text-gray-500 text-sm">Add custom activities or choose from our suggestions below.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <div>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Suggested Activities</h2>
+      
+      <div id="suggested-activities-toggle" class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 cursor-pointer">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-700">Hide Suggestions</h3>
+          <svg id="suggested-activities-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+        </div>
+      </div>
+      
+      <div id="suggested-activities" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% @suggested_activities.each do |activity| %>
+          <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2"><%= activity[:name] %></h3>
+            <p class="text-gray-600 mb-4"><%= activity[:description] %></p>
+            
+            <%= form_with(model: [@plan, Activity.new], local: false) do |form| %>
+              <%= form.hidden_field :name, value: activity[:name] %>
+              <%= form.hidden_field :description, value: activity[:description] %>
+              
+              <%= form.submit "Add to Plan", class: "w-full bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium text-sm" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize UI elements immediately
+    function initializeUI() {
+      // Activity form toggle
+      const addActivityBtn = document.getElementById('add-activity-btn');
+      const cancelActivityBtn = document.getElementById('cancel-activity-btn');
+      const activityForm = document.getElementById('activity-form');
+      
+      if (addActivityBtn && cancelActivityBtn && activityForm) {
+        addActivityBtn.addEventListener('click', function() {
+          activityForm.style.display = 'block';
+          addActivityBtn.style.display = 'none';
+        });
+        
+        cancelActivityBtn.addEventListener('click', function() {
+          activityForm.style.display = 'none';
+          addActivityBtn.style.display = 'inline-flex';
+        });
+      }
+      
+      // Suggested activities toggle
+      const suggestedActivitiesToggle = document.getElementById('suggested-activities-toggle');
+      const suggestedActivities = document.getElementById('suggested-activities');
+      const suggestedActivitiesArrow = document.getElementById('suggested-activities-arrow');
+      
+      if (suggestedActivitiesToggle && suggestedActivities && suggestedActivitiesArrow) {
+        suggestedActivitiesToggle.addEventListener('click', function() {
+          if (suggestedActivities.style.display === 'none') {
+            suggestedActivities.style.display = 'grid';
+            suggestedActivitiesArrow.outerHTML = '<svg id="suggested-activities-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>';
+            suggestedActivitiesToggle.querySelector('h3').textContent = 'Hide Suggestions';
+          } else {
+            suggestedActivities.style.display = 'none';
+            suggestedActivitiesArrow.outerHTML = '<svg id="suggested-activities-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
+            suggestedActivitiesToggle.querySelector('h3').textContent = 'Show Suggestions';
+          }
+        });
+      }
+    }
+    
+    // Call immediately and also when Turbo loads the frame
+    initializeUI();
+    document.addEventListener('turbo:load', initializeUI);
+    document.addEventListener('turbo:frame-load', function(event) {
+      if (event.target.id === 'modal') {
+        initializeUI();
+      }
+    });
+    
+    function copyShareLink() {
+      const shareLink = document.getElementById('share-link');
+      if (shareLink) {
+        shareLink.select();
+        document.execCommand('copy');
+        alert('Share link copied to clipboard!');
+      }
+    }
+  </script>
+<% end %>
