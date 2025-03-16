@@ -31,7 +31,7 @@ gem "omniauth-rails_csrf_protection", "~> 1.0.1"
 gem "httparty", "~> 0.21.0"
 
 # For background jobs
-gem "sidekiq", "~> 7.2.0"
+gem "sidekiq", "~> 8.0.1"
 
 # For scheduling recurring tasks
 gem "whenever", "~> 1.0.0", require: false
