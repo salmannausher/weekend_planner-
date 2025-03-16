@@ -80,6 +80,11 @@
         100% { transform: scale(1); opacity: 1; }
       }
     </style>
+    
+    <script>
+      // Define a global variable for the shared plan view
+      window.userSignedIn = false;
+    </script>
   </head>
 
   <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -90,15 +95,9 @@
         </div>
         <nav>
           <ul class="flex space-x-6 items-center">
-            <% if user_signed_in? %>
-              <li><%= link_to "My Plans", plans_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
-              <li><%= link_to "Calendar", calendar_events_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
-              <li><%= link_to "Account", edit_user_registration_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
-              <li><%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "bg-white hover:bg-gray-200 text-black px-4 py-2 rounded-md shadow-md font-medium border-2 border-white" %></li>
-            <% else %>
-              <li><%= link_to "Sign In", new_user_session_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
-              <li><%= link_to "Sign Up", new_user_registration_path, class: "bg-white hover:bg-gray-200 text-black px-4 py-2 rounded-md shadow-md font-medium border-2 border-white" %></li>
-            <% end %>
+            <li><%= link_to "Home", root_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
+            <li><%= link_to "Sign In", new_user_session_path, class: "text-lg hover:text-gray-300 font-medium" %></li>
+            <li><%= link_to "Sign Up", new_user_registration_path, class: "bg-white hover:bg-gray-200 text-black px-4 py-2 rounded-md shadow-md font-medium border-2 border-white" %></li>
           </ul>
         </nav>
       </div>

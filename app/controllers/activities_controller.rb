@@ -1,11 +1,18 @@
 class ActivitiesController < ApplicationController
-  before_action :authenticate_user!, except: [:vote]
+  before_action :authenticate_user!, except: [:create, :vote, :create_from_shared]
   before_action :set_plan
   before_action :set_activity, only: [:edit, :update, :destroy, :vote]
   before_action :ensure_owner, only: [:edit, :update, :destroy]
   
   def create
+    # This method is for authenticated users
+    unless user_signed_in?
+      redirect_to root_path, alert: "You don't have permission to perform this action."
+      return
+    end
+    
     @activity = @plan.activities.build(activity_params)
+    @activity.suggested_by = current_user.name
     
     respond_to do |format|
       if @activity.save
@@ -16,7 +23,35 @@ class ActivitiesController < ApplicationController
         format.turbo_stream { 
           render turbo_stream: turbo_stream.replace(
             "activity-form", 
-            partial: "plans/activity_form", 
+            partial: "activities/form", 
+            locals: { plan: @plan, activity: @activity }
+          )
+        }
+      end
+    end
+  end
+  
+  # New method for creating activities from shared plans
+  def create_from_shared
+    # Check if the plan has a share token
+    unless @plan.share_token.present?
+      redirect_to root_path, alert: "You don't have permission to perform this action."
+      return
+    end
+    
+    @activity = @plan.activities.build(activity_params)
+    @activity.suggested_by = "Guest"
+    
+    respond_to do |format|
+      if @activity.save
+        format.html { redirect_to shared_plan_path(@plan.share_token), notice: "Activity was successfully added." }
+        format.turbo_stream { render :create }
+      else
+        format.html { redirect_to shared_plan_path(@plan.share_token), alert: "Failed to add activity: #{@activity.errors.full_messages.join(', ')}" }
+        format.turbo_stream { 
+          render turbo_stream: turbo_stream.replace(
+            "activity-form", 
+            partial: "activities/form", 
             locals: { plan: @plan, activity: @activity }
           )
         }
@@ -38,7 +73,7 @@ class ActivitiesController < ApplicationController
         format.turbo_stream
       else
         format.html { redirect_to @plan, alert: "Failed to update activity: #{@activity.errors.full_messages.join(', ')}" }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("activity-form", partial: "plans/activity_form", locals: { plan: @plan, activity: @activity }) }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("activity-form", partial: "activities/form", locals: { plan: @plan, activity: @activity }) }
       end
     end
   end
@@ -54,7 +89,7 @@ class ActivitiesController < ApplicationController
 
   def vote
     # Allow voting without login for shared plans
-    unless @plan.shared? || @plan.finalized? || user_signed_in?
+    unless @plan.share_token.present? || user_signed_in?
       redirect_to @plan, alert: "This plan is not shared yet."
       return
     end
@@ -84,6 +119,6 @@ class ActivitiesController < ApplicationController
   end
   
   def activity_params
-    params.require(:activity).permit(:name, :description, :date)
+    params.require(:activity).permit(:name, :description, :location)
   end
 end

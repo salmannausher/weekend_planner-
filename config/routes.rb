@@ -22,12 +22,15 @@ Rails.application.routes.draw do
       member do
         post :vote
       end
+      collection do
+        post :create_from_shared
+      end
     end
     
     resources :comments, only: [:create, :destroy]
     
     # Weather forecasts - using a custom route instead of a resource with non-standard actions
-    get "weather_forecasts/fetch", to: "weather_forecasts#fetch", as: "fetch_weather_forecasts"
+    match "weather_forecasts/fetch", to: "weather_forecasts#fetch", as: "fetch_weather_forecasts", via: [:get, :post]
   end
   
   # Public shared weekend view (no login required)
@@ -40,6 +43,9 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
+  # Weather for nearby cities
+  get "weather/nearby", to: "weather_forecasts#nearby", as: "nearby_weather"
 
   # Defines the root path route ("/")
   # root "posts#index"

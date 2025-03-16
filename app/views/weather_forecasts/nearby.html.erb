@@ -1,0 +1,86 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold text-gray-900 mb-6">Weather in Nearby Cities</h1>
+  
+  <div class="mb-6 flex flex-col md:flex-row md:items-end md:justify-between">
+    <%= form_with url: nearby_weather_path, method: :get, class: "flex-grow md:mr-4 mb-4 md:mb-0" do |f| %>
+      <div class="flex items-end space-x-4">
+        <div class="flex-grow">
+          <%= f.label :city, "Enter a city:", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :city, class: "w-full border-2 border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black", placeholder: "e.g. New York" %>
+        </div>
+        <%= f.submit "Get Weather", class: "bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium" %>
+      </div>
+    <% end %>
+    
+    <div class="flex items-center">
+      <span class="mr-2 text-sm font-medium text-gray-700">Temperature Unit:</span>
+      <label class="mr-2 text-sm text-gray-600">°F</label>
+      <div class="relative inline-block w-10 mr-2 align-middle select-none">
+        <input type="checkbox" id="temp-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer" />
+        <label for="temp-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+      </div>
+      <label class="text-sm text-gray-600">°C</label>
+    </div>
+  </div>
+  
+  <div id="nearby-cities" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <% @nearby_cities.each do |city| %>
+      <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+        <div class="text-center">
+          <h2 class="text-xl font-semibold text-gray-800 mb-2"><%= city[:city] %></h2>
+          <div class="flex justify-center items-center mb-2">
+            <img src="https://openweathermap.org/img/wn/<%= city[:icon] %>@2x.png" alt="<%= city[:condition] %>" class="w-16 h-16">
+          </div>
+          <div class="text-3xl font-bold text-gray-900 mb-1">
+            <span class="temp-f"><%= city[:temperature] %>°F</span>
+            <span class="temp-c hidden"><%= ((city[:temperature] - 32) * 5/9).round %>°C</span>
+          </div>
+          <div class="text-sm font-medium text-gray-600"><%= city[:condition] %></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="mt-6 text-center">
+    <%= link_to "Back to Plan", :back, class: "text-black hover:text-gray-700 underline" %>
+  </div>
+</div>
+
+<style>
+  /* Toggle switch styles */
+  .toggle-checkbox:checked {
+    right: 0;
+    border-color: #68D391;
+  }
+  .toggle-checkbox:checked + .toggle-label {
+    background-color: #68D391;
+  }
+  .toggle-label {
+    transition: background-color 0.2s ease;
+  }
+  .hidden {
+    display: none;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tempToggle = document.getElementById('temp-toggle');
+    const tempF = document.querySelectorAll('.temp-f');
+    const tempC = document.querySelectorAll('.temp-c');
+    
+    if (tempToggle && tempF.length > 0 && tempC.length > 0) {
+      tempToggle.addEventListener('change', function() {
+        if (this.checked) {
+          // Show Celsius
+          tempF.forEach(el => el.classList.add('hidden'));
+          tempC.forEach(el => el.classList.remove('hidden'));
+        } else {
+          // Show Fahrenheit
+          tempF.forEach(el => el.classList.remove('hidden'));
+          tempC.forEach(el => el.classList.add('hidden'));
+        }
+      });
+    }
+  });
+</script> 

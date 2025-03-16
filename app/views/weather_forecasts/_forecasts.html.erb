@@ -1,0 +1,21 @@
+<div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+  <div class="flex overflow-x-auto pb-2">
+    <% forecasts.order(:date).each_with_index do |forecast, index| %>
+      <div class="flex-shrink-0 w-24 text-center mx-1 relative <%= index > 0 ? 'pl-3' : '' %>">
+        <% if index > 0 %>
+          <div class="absolute left-0 top-0 bottom-0 w-px bg-gray-200"></div>
+        <% end %>
+        <div class="text-xs font-medium text-gray-500"><%= forecast.date.strftime("%a, %d") %></div>
+        <div class="text-lg font-bold text-gray-900 my-1">
+          <span class="temp-f"><%= forecast.temperature_high.round %>°F</span>
+          <span class="temp-c hidden"><%= ((forecast.temperature_high - 32) * 5/9).round %>°C</span>
+        </div>
+        <div class="text-xs text-gray-600">
+          <span class="temp-f">L: <%= forecast.temperature_low.round %>°F</span>
+          <span class="temp-c hidden">L: <%= ((forecast.temperature_low - 32) * 5/9).round %>°C</span>
+        </div>
+        <div class="text-xs font-medium text-gray-700 mt-1"><%= forecast.condition %></div>
+      </div>
+    <% end %>
+  </div>
+</div> 

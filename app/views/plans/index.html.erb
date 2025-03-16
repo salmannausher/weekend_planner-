@@ -63,7 +63,7 @@
                   No activities yet
                 <% end %>
               </span>
-              <%= link_to "View Details →", plan_path(plan), class: "text-black hover:underline font-medium", data: { turbo_frame: "modal" } %>
+              <%= link_to "View Details →", plan_path(plan), class: "text-black hover:underline font-medium", data: { turbo_frame: "modal", turbo_prefetch: true } %>
             </div>
           </div>
           

@@ -1,0 +1,152 @@
+<div class="p-6 md:p-8">
+  <div class="flex justify-between items-start mb-6">
+    <h1 class="text-3xl font-bold text-gray-900"><%= @plan.title %></h1>
+    
+    <div class="flex space-x-2">
+      <%= link_to root_path, class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Dates</h2>
+      <p class="text-gray-600">
+        <%= @plan.start_date.strftime("%B %d") %> - <%= @plan.end_date.strftime("%B %d, %Y") %>
+        <span class="text-gray-500 text-sm ml-2">
+          (<%= (@plan.end_date - @plan.start_date).to_i + 1 %> days)
+        </span>
+      </p>
+    </div>
+    
+    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Location</h2>
+      <p class="text-gray-600"><%= @plan.location %></p>
+    </div>
+  </div>
+  
+  <!-- Weather Forecasts Section -->
+  <div class="mb-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-gray-900">Weather Forecast</h2>
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center">
+          <label class="mr-2 text-sm text-gray-600">°F</label>
+          <div class="relative inline-block w-10 mr-2 align-middle select-none">
+            <input type="checkbox" id="temp-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer" />
+            <label for="temp-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+          </div>
+          <label class="text-sm text-gray-600">°C</label>
+        </div>
+      </div>
+    </div>
+    
+    <div id="weather-forecasts">
+      <% if @plan.weather_forecasts.any? %>
+        <%= render partial: "weather_forecasts/forecasts", locals: { forecasts: @plan.weather_forecasts } %>
+      <% else %>
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+          <p class="text-gray-600">No weather forecasts available for this location.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Activities Section -->
+  <div class="mb-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-gray-900">Activities</h2>
+      <% unless @plan.finalized? %>
+        <button id="add-activity-btn" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md font-medium">Add Activity</button>
+      <% end %>
+    </div>
+    
+    <% unless @plan.finalized? %>
+      <div id="activity-form" class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200" style="display: none;">
+        <div class="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200">
+          <p class="text-blue-700 text-sm">You're adding an activity as a guest. Your suggestion will be visible to everyone with access to this plan.</p>
+        </div>
+        <%= render "activities/form", plan: @plan, activity: @activity, from_shared: true %>
+      </div>
+    <% end %>
+    
+    <div id="activities-list">
+      <% if @plan.activities.empty? %>
+        <div class="no-activities-message bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
+          <p class="text-gray-600 mb-2">No activities have been added yet.</p>
+          <% unless @plan.finalized? %>
+            <p class="text-gray-500 text-sm">You can suggest activities for this trip!</p>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% @plan.activities.each do |activity| %>
+            <%= render "activities/activity", activity: activity %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Status Section -->
+  <div class="mb-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-gray-900">Status</h2>
+      <% if @plan.finalized? %>
+        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Finalized</span>
+      <% end %>
+    </div>
+    
+    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-medium text-gray-700">Shared Plan</h3>
+          <p class="text-sm text-gray-500 mt-1">This is a shared view of the plan</p>
+        </div>
+        
+        <div class="flex items-center">
+          <% if @plan.user.present? %>
+            <p class="text-sm text-gray-600">Created by <%= @plan.user.name || "Anonymous" %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Temperature toggle
+  document.getElementById('temp-toggle').addEventListener('change', function() {
+    const tempElements = document.querySelectorAll('.temp-f, .temp-c');
+    tempElements.forEach(el => {
+      el.classList.toggle('hidden');
+    });
+  });
+  
+  // Activity form toggle
+  const addActivityBtn = document.getElementById('add-activity-btn');
+  if (addActivityBtn) {
+    addActivityBtn.addEventListener('click', function() {
+      const form = document.getElementById('activity-form');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      this.textContent = form.style.display === 'none' ? 'Add Activity' : 'Cancel';
+    });
+  }
+</script>
+
+<style>
+  /* Toggle switch styles */
+  .toggle-checkbox:checked {
+    right: 0;
+    border-color: #68D391;
+  }
+  .toggle-checkbox:checked + .toggle-label {
+    background-color: #68D391;
+  }
+  .toggle-label {
+    transition: background-color 0.2s ease;
+  }
+</style> 

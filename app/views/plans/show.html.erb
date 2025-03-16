@@ -4,16 +4,24 @@
       <h1 class="text-3xl font-bold text-gray-900"><%= @plan.title %></h1>
       
       <div class="flex space-x-2">
-        <%= link_to edit_plan_path(@plan), class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        <% end %>
-        
-        <%= link_to plans_path, class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
+        <% if defined?(user_signed_in?) && user_signed_in? && @plan.user == current_user %>
+          <%= link_to edit_plan_path(@plan), class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          <% end %>
+          
+          <%= link_to plans_path, class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          <% end %>
+        <% else %>
+          <%= link_to root_path, class: "text-gray-600 hover:text-black bg-gray-100 p-2 rounded-md border border-gray-200 shadow-sm" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          <% end %>
         <% end %>
       </div>
     </div>
@@ -35,162 +43,270 @@
       </div>
     </div>
     
+    <!-- Weather Forecasts Section - Lazy loaded -->
     <div class="mb-8">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-semibold text-gray-900">Status</h2>
-        <span class="text-sm">
-          <% case @plan.status %>
-          <% when 'draft' %>
-            <span class="inline-block bg-gray-200 text-gray-800 px-3 py-1 rounded-full">Draft</span>
-          <% when 'shared' %>
-            <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full">Shared</span>
-          <% when 'finalized' %>
-            <span class="inline-block bg-black text-white px-3 py-1 rounded-full">Finalized</span>
-          <% end %>
-        </span>
-      </div>
-      
-      <% if @plan.description.present? %>
-        <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
-          <p class="text-gray-700"><%= @plan.description %></p>
-        </div>
-      <% end %>
-      
-      <% if @plan.status == 'draft' %>
-        <div class="flex space-x-3">
-          <%= button_to "Share Plan", share_plan_path(@plan), method: :patch, class: "bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium" %>
-          <%= button_to "Finalize Plan", finalize_plan_path(@plan), method: :patch, class: "bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-md shadow-md border-2 border-black font-medium" %>
-        </div>
-      <% elsif @plan.status == 'shared' %>
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-          <h3 class="text-lg font-semibold text-gray-700 mb-2">Share Link</h3>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Weather Forecast</h2>
+        <div class="flex items-center space-x-3">
           <div class="flex items-center">
-            <input type="text" value="<%= shared_plan_url(@plan.share_token) %>" class="flex-grow border-2 border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm" readonly id="share-link">
-            <button onclick="copyShareLink()" class="ml-2 bg-black hover:bg-gray-800 text-white px-3 py-2 rounded-md shadow-md border-2 border-black font-medium text-sm">
-              Copy
-            </button>
+            <label class="mr-2 text-sm text-gray-600">°F</label>
+            <div class="relative inline-block w-10 mr-2 align-middle select-none">
+              <input type="checkbox" id="temp-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer" />
+              <label for="temp-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+            </div>
+            <label class="text-sm text-gray-600">°C</label>
           </div>
         </div>
+      </div>
+      
+      <div id="weather-forecasts">
+        <% if @plan.weather_forecasts.any? %>
+          <%= render partial: "weather_forecasts/forecasts", locals: { forecasts: @plan.weather_forecasts } %>
+        <% else %>
+          <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+            <p class="text-gray-600">No weather forecasts available for this location.</p>
+            <%= button_to "Fetch Weather", plan_fetch_weather_forecasts_path(@plan), method: :post, class: "mt-2 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md font-medium" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Nearby Cities Section - Lazy loaded -->
+    <div id="nearby-cities-section" class="mb-8">
+      <% if @plan.weather_forecasts.any? %>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Nearby Cities</h2>
+          <button id="load-nearby-cities" class="text-sm text-gray-600 hover:text-black flex items-center">
+            <span>View Nearby Cities</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
         
-        <%= button_to "Finalize Plan", finalize_plan_path(@plan), method: :patch, class: "bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium" %>
+        <div id="nearby-cities-content" style="display: none;">
+          <% if @nearby_cities.present? %>
+            <div class="flex overflow-x-auto pb-2">
+              <% @nearby_cities.each_with_index do |city, index| %>
+                <div class="flex-shrink-0 w-28 text-center mx-1 relative <%= index > 0 ? 'pl-3' : '' %>">
+                  <% if index > 0 %>
+                    <div class="absolute left-0 top-0 bottom-0 w-px bg-gray-200"></div>
+                  <% end %>
+                  <div class="text-xs font-medium text-gray-700"><%= city[:city] %></div>
+                  <div class="flex justify-center">
+                    <img src="https://openweathermap.org/img/wn/<%= city[:icon] %>@2x.png" alt="<%= city[:condition] %>" class="w-8 h-8">
+                  </div>
+                  <div class="text-sm font-bold text-gray-900">
+                    <span class="temp-f"><%= city[:temperature] %>°F</span>
+                    <span class="temp-c hidden"><%= ((city[:temperature] - 32) * 5/9).round %>°C</span>
+                  </div>
+                  <div class="text-xs text-gray-600"><%= city[:condition] %></div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="nearby-cities-loading text-center py-8">
+              <div class="loading-spinner mx-auto mb-4"></div>
+              <p class="text-gray-600">Loading nearby cities...</p>
+            </div>
+          <% end %>
+        </div>
       <% end %>
     </div>
     
+    <!-- Activities Section -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold text-gray-900">Activities</h2>
-        <div id="activity-form-container">
-          <button id="add-activity-btn" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium text-sm">
-            Add Custom Activity
-          </button>
-          <div id="activity-form" class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 mt-4" style="display: none;">
-            <%= render partial: "activity_form", locals: { plan: @plan, activity: @activity } %>
-          </div>
-        </div>
+        <% if defined?(user_signed_in?) && user_signed_in? && @plan.user == current_user %>
+          <button id="add-activity-btn" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md font-medium">Add Activity</button>
+        <% end %>
       </div>
       
-      <% if @plan.activities.any? %>
-        <div id="activities-list" class="space-y-4">
-          <% @plan.activities.each do |activity| %>
-            <%= render partial: "activity", locals: { activity: activity, plan: @plan } %>
-          <% end %>
-        </div>
-      <% else %>
-        <div id="activities-list" class="space-y-4">
-          <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center no-activities-message">
-            <p class="text-gray-600 mb-2">No activities added yet.</p>
-            <p class="text-gray-500 text-sm">Add custom activities or choose from our suggestions below.</p>
-          </div>
+      <% if defined?(user_signed_in?) && user_signed_in? && @plan.user == current_user %>
+        <div id="activity-form" class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200" style="display: none;">
+          <%= render "activities/form", plan: @plan, activity: @activity %>
         </div>
       <% end %>
-    </div>
-    
-    <div>
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Suggested Activities</h2>
       
-      <div id="suggested-activities-toggle" class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 cursor-pointer">
-        <div class="flex justify-between items-center">
-          <h3 class="text-lg font-semibold text-gray-700">Hide Suggestions</h3>
-          <svg id="suggested-activities-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-          </svg>
-        </div>
-      </div>
-      
-      <div id="suggested-activities" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <% @suggested_activities.each do |activity| %>
-          <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2"><%= activity[:name] %></h3>
-            <p class="text-gray-600 mb-4"><%= activity[:description] %></p>
-            
-            <%= form_with(model: [@plan, Activity.new], local: false) do |form| %>
-              <%= form.hidden_field :name, value: activity[:name] %>
-              <%= form.hidden_field :description, value: activity[:description] %>
-              
-              <%= form.submit "Add to Plan", class: "w-full bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md border-2 border-black font-medium text-sm" %>
+      <div id="activities-list">
+        <% if @plan.activities.empty? %>
+          <div class="no-activities-message bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
+            <p class="text-gray-600 mb-2">No activities have been added yet.</p>
+            <p class="text-gray-500 text-sm">Add custom activities or choose from our suggestions below.</p>
+          </div>
+        <% else %>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <% @plan.activities.each do |activity| %>
+              <%= render "activities/activity", activity: activity %>
             <% end %>
           </div>
         <% end %>
       </div>
     </div>
+    
+    <!-- Suggested Activities Section - Lazy loaded -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Suggested Activities</h2>
+        <button id="load-suggestions" class="text-sm text-gray-600 hover:text-black flex items-center">
+          <span>Load Suggestions</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+      
+      <div id="suggested-activities-content" style="display: none;">
+        <div class="suggested-activities-loading text-center py-8">
+          <div class="loading-spinner mx-auto mb-4"></div>
+          <p class="text-gray-600">Generating suggestions based on your plan...</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Status Section -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Status</h2>
+        <% if @plan.finalized? %>
+          <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Finalized</span>
+        <% elsif defined?(user_signed_in?) && user_signed_in? && @plan.user == current_user %>
+          <%= button_to "Finalize Plan", finalize_plan_path(@plan), method: :patch, class: "bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md font-medium" %>
+        <% end %>
+      </div>
+      
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-medium text-gray-700">Share this plan</h3>
+            <p class="text-sm text-gray-500 mt-1">Send this link to friends and family</p>
+          </div>
+          
+          <div class="flex items-center">
+            <input type="text" id="share-url" value="<%= safe_shared_plan_url(@plan) %>" readonly class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm w-64 mr-2">
+            <button id="copy-link" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-md shadow-sm text-sm">
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
+  
   <script>
-    // Initialize UI elements immediately
-    function initializeUI() {
-      // Activity form toggle
-      const addActivityBtn = document.getElementById('add-activity-btn');
-      const cancelActivityBtn = document.getElementById('cancel-activity-btn');
-      const activityForm = document.getElementById('activity-form');
-      
-      if (addActivityBtn && cancelActivityBtn && activityForm) {
-        addActivityBtn.addEventListener('click', function() {
-          activityForm.style.display = 'block';
-          addActivityBtn.style.display = 'none';
-        });
+    // Temperature toggle
+    document.getElementById('temp-toggle').addEventListener('change', function() {
+      const tempElements = document.querySelectorAll('.temp-f, .temp-c');
+      tempElements.forEach(el => {
+        el.classList.toggle('hidden');
+      });
+    });
+    
+    // Activity form toggle
+    const addActivityBtn = document.getElementById('add-activity-btn');
+    if (addActivityBtn) {
+      addActivityBtn.addEventListener('click', function() {
+        const form = document.getElementById('activity-form');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        this.textContent = form.style.display === 'none' ? 'Add Activity' : 'Cancel';
+      });
+    }
+    
+    // Copy share link
+    const copyLinkBtn = document.getElementById('copy-link');
+    if (copyLinkBtn) {
+      copyLinkBtn.addEventListener('click', function() {
+        const shareUrl = document.getElementById('share-url');
+        shareUrl.select();
+        document.execCommand('copy');
+        this.textContent = 'Copied!';
+        setTimeout(() => {
+          this.textContent = 'Copy';
+        }, 2000);
+      });
+    }
+    
+    // Load suggested activities
+    const loadSuggestionsBtn = document.getElementById('load-suggestions');
+    if (loadSuggestionsBtn) {
+      loadSuggestionsBtn.addEventListener('click', function() {
+        const content = document.getElementById('suggested-activities-content');
         
-        cancelActivityBtn.addEventListener('click', function() {
-          activityForm.style.display = 'none';
-          addActivityBtn.style.display = 'inline-flex';
-        });
-      }
-      
-      // Suggested activities toggle
-      const suggestedActivitiesToggle = document.getElementById('suggested-activities-toggle');
-      const suggestedActivities = document.getElementById('suggested-activities');
-      const suggestedActivitiesArrow = document.getElementById('suggested-activities-arrow');
-      
-      if (suggestedActivitiesToggle && suggestedActivities && suggestedActivitiesArrow) {
-        suggestedActivitiesToggle.addEventListener('click', function() {
-          if (suggestedActivities.style.display === 'none') {
-            suggestedActivities.style.display = 'grid';
-            suggestedActivitiesArrow.outerHTML = '<svg id="suggested-activities-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>';
-            suggestedActivitiesToggle.querySelector('h3').textContent = 'Hide Suggestions';
+        if (content.style.display === 'none') {
+          content.style.display = 'block';
+          this.querySelector('span').textContent = 'Hide Suggestions';
+          
+          // Only fetch if we haven't already
+          if (!content.querySelector('.grid')) {
+            const loadingElement = content.querySelector('.suggested-activities-loading');
+            if (loadingElement) {
+              loadingElement.style.display = 'block';
+            }
+            
+            fetch('<%= plan_path(@plan, suggested: true, format: :turbo_stream) %>')
+              .then(response => response.text())
+              .then(html => {
+                Turbo.renderStreamMessage(html);
+                if (loadingElement) {
+                  loadingElement.style.display = 'none';
+                }
+              });
+          }
+        } else {
+          content.style.display = 'none';
+          this.querySelector('span').textContent = 'Load Suggestions';
+        }
+      });
+    }
+    
+    // Load nearby cities
+    <% if @plan.weather_forecasts.any? %>
+      const loadNearbyCitiesBtn = document.getElementById('load-nearby-cities');
+      if (loadNearbyCitiesBtn) {
+        loadNearbyCitiesBtn.addEventListener('click', function() {
+          const content = document.getElementById('nearby-cities-content');
+          
+          if (content.style.display === 'none') {
+            content.style.display = 'block';
+            this.querySelector('span').textContent = 'Hide Nearby Cities';
+            
+            // Only fetch if we haven't already
+            if (!content.querySelector('.flex.overflow-x-auto')) {
+              const loadingElement = content.querySelector('.nearby-cities-loading');
+              if (loadingElement) {
+                loadingElement.style.display = 'block';
+              }
+              
+              fetch('<%= plan_path(@plan, nearby: true, format: :turbo_stream) %>')
+                .then(response => response.text())
+                .then(html => {
+                  Turbo.renderStreamMessage(html);
+                  if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                  }
+                });
+            }
           } else {
-            suggestedActivities.style.display = 'none';
-            suggestedActivitiesArrow.outerHTML = '<svg id="suggested-activities-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
-            suggestedActivitiesToggle.querySelector('h3').textContent = 'Show Suggestions';
+            content.style.display = 'none';
+            this.querySelector('span').textContent = 'View Nearby Cities';
           }
         });
       }
-    }
-    
-    // Call immediately and also when Turbo loads the frame
-    initializeUI();
-    document.addEventListener('turbo:load', initializeUI);
-    document.addEventListener('turbo:frame-load', function(event) {
-      if (event.target.id === 'modal') {
-        initializeUI();
-      }
-    });
-    
-    function copyShareLink() {
-      const shareLink = document.getElementById('share-link');
-      if (shareLink) {
-        shareLink.select();
-        document.execCommand('copy');
-        alert('Share link copied to clipboard!');
-      }
-    }
+    <% end %>
   </script>
+
+  <style>
+    /* Toggle switch styles */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #68D391;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #68D391;
+    }
+    .toggle-label {
+      transition: background-color 0.2s ease;
+    }
+  </style>
 <% end %>

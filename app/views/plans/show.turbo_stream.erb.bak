@@ -1,3 +1,7 @@
+<%= turbo_stream.replace "modal" do %>
+  <%= render partial: "plans/show", locals: { plan: @plan } %>
+<% end %>
+
 <% if params[:suggested] %>
   <%= turbo_stream.replace "suggested-activities-content" do %>
     <div id="suggested-activities-content">
@@ -12,7 +16,7 @@
                 <%= form.hidden_field :name, value: activity[:name] %>
                 <%= form.hidden_field :description, value: activity[:description] %>
                 <% if activity[:date] %>
-                  <%= form.hidden_field :start_time, value: activity[:date] %>
+                  <%= form.hidden_field :date, value: activity[:date] %>
                 <% end %>
                 
                 <%= form.submit "Add to Plan", class: "w-full bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-md font-medium text-sm" %>
@@ -63,5 +67,4 @@
         </div>
       <% end %>
     </div>
-  <% end %>
-<% end %>
+  <% end %> 

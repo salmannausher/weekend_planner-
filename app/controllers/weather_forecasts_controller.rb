@@ -1,18 +1,32 @@
 class WeatherForecastsController < ApplicationController
-  before_action :authenticate_user!
-  before_action :set_plan
+  before_action :authenticate_user!, except: [:nearby]
+  before_action :set_plan, except: [:nearby]
   
   def fetch
-    # This would typically call a weather API service
-    # For now, we'll create some sample data
-    
-    # Clear existing forecasts
-    @plan.weather_forecasts.destroy_all
-    
-    # Create sample forecasts for each day of the plan
+    # Use the updated method to fetch real weather data
     WeatherForecast.fetch_for_plan(@plan)
     
-    redirect_to @plan, notice: "Weather forecast has been updated."
+    # Fetch nearby cities weather data
+    @nearby_cities = WeatherForecast.fetch_nearby_cities(@plan.location)
+    
+    respond_to do |format|
+      format.html { redirect_to @plan, notice: "Weather forecast has been updated." }
+      format.turbo_stream
+    end
+  end
+  
+  def nearby
+    # Get the city from params or default to New York
+    city = params[:city] || "New York"
+    
+    # Fetch nearby cities weather data
+    @nearby_cities = WeatherForecast.fetch_nearby_cities(city)
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @nearby_cities }
+      format.turbo_stream
+    end
   end
   
   private

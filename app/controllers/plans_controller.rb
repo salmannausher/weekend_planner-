@@ -3,6 +3,9 @@ class PlansController < ApplicationController
   before_action :set_plan, only: [:show, :edit, :update, :destroy, :share, :finalize]
   before_action :ensure_owner, only: [:edit, :update, :destroy, :finalize]
   
+  # Define helper methods for the shared view
+  helper_method :user_signed_in?, :current_user
+  
   def index
     @plans = current_user.plans.order(created_at: :desc)
     @temperature = fetch_temperature
@@ -10,7 +13,17 @@ class PlansController < ApplicationController
 
   def show
     @activity = Activity.new
+    
+    # Use eager loading to reduce database queries
+    @plan = Plan.includes(:activities, :weather_forecasts).friendly.find(params[:id])
+    
     @suggested_activities = generate_suggested_activities
+    @temperature = fetch_temperature
+    
+    # Load nearby cities weather data if we have weather forecasts
+    if @plan.weather_forecasts.any?
+      @nearby_cities = WeatherForecast.fetch_nearby_cities(@plan.location)
+    end
     
     respond_to do |format|
       format.html
@@ -75,14 +88,35 @@ class PlansController < ApplicationController
   
   def shared
     @plan = Plan.find_by!(share_token: params[:token])
+    @activity = Activity.new
     @suggested_activities = generate_suggested_activities
-    render :show
+    @temperature = fetch_temperature
+    
+    # Load nearby cities weather data if we have weather forecasts
+    if @plan.weather_forecasts.any?
+      @nearby_cities = WeatherForecast.fetch_nearby_cities(@plan.location)
+    end
+    
+    # Render the shared template with a special layout for shared plans
+    render :shared, layout: 'shared_plan'
+  end
+  
+  # Helper method for shared plans
+  def user_signed_in?
+    # Only return false for the shared action
+    action_name == 'shared' ? false : super
+  end
+  
+  # Helper method for shared plans
+  def current_user
+    # Only return nil for the shared action
+    action_name == 'shared' ? nil : super
   end
   
   private
   
   def set_plan
-    @plan = Plan.find(params[:id])
+    @plan = Plan.friendly.find(params[:id])
   end
   
   def ensure_owner
