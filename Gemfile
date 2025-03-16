@@ -24,7 +24,7 @@ gem "devise", "~> 4.9.3"
 
 # Google Calendar API integration
 gem "google-api-client", "~> 0.53.0"
-gem "omniauth-google-oauth2", "~> 1.1.1"
+gem "omniauth-google-oauth2", "~> 1.2.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0.1"
 
 # Weather API integration
