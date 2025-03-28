@@ -28,7 +28,7 @@ gem "omniauth-google-oauth2", "~> 1.1.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0.1"
 
 # Weather API integration
-gem "httparty", "~> 0.21.0"
+gem "httparty", "~> 0.23.0"
 
 # For background jobs
 gem "sidekiq", "~> 7.2.0"
